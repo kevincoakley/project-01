@@ -1,0 +1,10 @@
+__pycache__/*
+*.csv
+*.h5
+*.npy
+*.pth
+*.yaml
+*.png
+*.jpg
+._.DS_Store
+.DS_Store
