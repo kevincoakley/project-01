@@ -1,7 +1,7 @@
 import argparse, csv, os, sys, yaml
 from datetime import datetime
 
-script_version = "1.0.0"
+script_version = "1.0.1"
 
 
 def get_dataset_details(dataset_name):
@@ -170,9 +170,18 @@ def image_classification(
                 os.mkdir("predictions/" + run_name + "/")
             prediction_path = "predictions/" + run_name + "/"
 
-    predictions_csv_file = (
-        prediction_path + base_name + "_seed_" + str(seed_val) + ".csv"
-    )
+    if seed_val != 1:
+        predictions_csv_file = (
+            prediction_path + base_name + "_seed_" + str(seed_val) + ".csv"
+        )
+    else:
+        predictions_csv_file = (
+            prediction_path
+            + base_name
+            + "_ts_"
+            + datetime.now().strftime("%Y%m%d%H%M%S")
+            + ".csv"
+        )
 
     score = framework.evaluate(
         trained_model, test_dataset, save_predictions, predictions_csv_file
@@ -202,7 +211,7 @@ def image_classification(
             model_path = (
                 model_path
                 + base_name
-                + "_seed_"
+                + "_ts_"
                 + datetime.now().strftime("%Y%m%d%H%M%S")
             )
 
