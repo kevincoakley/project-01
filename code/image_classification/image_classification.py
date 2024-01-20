@@ -1,7 +1,7 @@
 import argparse, csv, os, sys, yaml
 from datetime import datetime
 
-script_version = "1.0.1"
+script_version = "1.0.2"
 
 
 def get_dataset_details(dataset_name):
@@ -64,6 +64,7 @@ def image_classification(
     seed_val=1,
     transfer_learning=False,
     run_name="",
+    start="",
     save_model=False,
     save_predictions=False,
     save_epoch_logs=False,
@@ -137,7 +138,7 @@ def image_classification(
         csv_train_log_file = "%s_log_%s_%s.csv" % (
             base_name,
             machine_learning_framework,
-            datetime.now().strftime("%Y%m%d%H%M%S"),
+            start,
         )
 
     # Train the model
@@ -179,7 +180,7 @@ def image_classification(
             prediction_path
             + base_name
             + "_ts_"
-            + datetime.now().strftime("%Y%m%d%H%M%S")
+            + start
             + ".csv"
         )
 
@@ -212,12 +213,12 @@ def image_classification(
                 model_path
                 + base_name
                 + "_ts_"
-                + datetime.now().strftime("%Y%m%d%H%M%S")
+                + start
             )
 
         # Append the file extension based on the machine learning framework
         if machine_learning_framework == "TensorFlow":
-            model_path = model_path + ".h5"
+            model_path = model_path + ".keras"
 
         framework.save(trained_model, model_path)
 
@@ -256,6 +257,7 @@ def save_score(
     transfer_learning,
     filename,
     run_name="",
+    start="",
 ):
     if machine_learning_framework == "TensorFlow":
         from tensorflow_framework import Tensorflow
@@ -306,8 +308,8 @@ def save_score(
             {
                 "run_name": run_name,
                 "script_version": script_version,
-                "date_time": datetime.now(),
-                "fit_time": training_time,
+                "date_time": start,
+                "fit_time": int(training_time.total_seconds()),
                 "python_version": sys.version.replace("\n", ""),
                 "machine_learning_framework": machine_learning_framework,
                 "framework_version": framework.version,
@@ -494,6 +496,8 @@ if __name__ == "__main__":
     seed_val = args.seed_val
     epochs = args.epochs
 
+    start = datetime.now().strftime("%Y%m%d%H%M%S")
+
     print(
         "\nImage Classification (%s - %s - %s): [%s]\n======================\n"
         % (
@@ -517,6 +521,7 @@ if __name__ == "__main__":
         seed_val=seed_val,
         transfer_learning=args.transfer_learning,
         run_name=args.run_name,
+        start=start,
         save_model=args.save_model,
         save_predictions=args.save_predictions,
         save_epoch_logs=args.save_epoch_logs,
@@ -540,4 +545,5 @@ if __name__ == "__main__":
         transfer_learning=args.transfer_learning,
         filename=save_filename,
         run_name=args.run_name,
+        start=start,
     )
