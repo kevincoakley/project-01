@@ -1,7 +1,7 @@
 import argparse, csv, os, sys, yaml
 from datetime import datetime
 
-script_version = "1.0.2"
+script_version = "1.0.3"
 
 
 def get_dataset_details(dataset_name):
@@ -307,7 +307,7 @@ def save_score(
         writer.writerow(
             {
                 "run_name": run_name,
-                "script_version": script_version,
+                "script_version": script_version + "-" + framework.script_version,
                 "date_time": start,
                 "fit_time": int(training_time.total_seconds()),
                 "python_version": sys.version.replace("\n", ""),
