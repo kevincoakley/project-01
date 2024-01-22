@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score
 
 class Tensorflow:
     def __init__(self):
+        self.script_version = "1.0.1"
         self.version = tf.version.VERSION
         self.epochs = 0
         self.end_to_end_epochs = 0
@@ -15,6 +16,8 @@ class Tensorflow:
         self.end_to_end_learning_rate = 0.0
         self.lr_scheduler = False
         self.transfer_learning = False
+
+        self.train_steps_per_epoch = 0
 
         self.save_epoch_logs = False
         self.save_tensorboard_logs = False
@@ -90,8 +93,9 @@ class Tensorflow:
         train_dataset = (
             train.map(preprocessing)
             .map(augmentation)
-            .shuffle(1000)
-            .batch(batch_size)
+            .shuffle(10000)
+            .batch(batch_size, drop_remainder=True)
+            .repeat()
             .prefetch(tf.data.AUTOTUNE)
         )
         val_dataset = (
@@ -100,6 +104,10 @@ class Tensorflow:
         test_dataset = (
             test.map(preprocessing).batch(batch_size).prefetch(tf.data.AUTOTUNE)
         )
+
+        # Calculate the number of steps per epoch so each epoch goes through the entire dataset once
+        train_size = len(list(train))
+        self.train_steps_per_epoch = train_size // batch_size
 
         return train_dataset, val_dataset, test_dataset
 
@@ -239,6 +247,7 @@ class Tensorflow:
         model.fit(
             train_dataset,
             epochs=epochs,
+            steps_per_epoch=self.train_steps_per_epoch,
             validation_data=val_dataset,
             callbacks=callbacks,
         )
@@ -280,6 +289,7 @@ class Tensorflow:
             model.fit(
                 train_dataset,
                 epochs=self.end_to_end_epochs,
+                steps_per_epoch=self.train_steps_per_epoch,
                 validation_data=val_dataset,
                 callbacks=callbacks,
             )
