@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 
 class Tensorflow:
     def __init__(self):
-        self.script_version = "1.0.1"
+        self.script_version = "1.0.2"
         self.version = tf.version.VERSION
         self.epochs = 0
         self.end_to_end_epochs = 0
@@ -93,7 +93,7 @@ class Tensorflow:
         train_dataset = (
             train.map(preprocessing)
             .map(augmentation)
-            .shuffle(10000)
+            .shuffle(1000)
             .batch(batch_size, drop_remainder=True)
             .repeat()
             .prefetch(tf.data.AUTOTUNE)
@@ -123,6 +123,14 @@ class Tensorflow:
             "DenseNet169": {
                 "application": tf.keras.applications.DenseNet169,
                 "preprocess_input": tf.keras.applications.densenet.preprocess_input,
+            },
+            "ResNet50": {
+                "application": tf.keras.applications.resnet.ResNet50,
+                "preprocess_input": tf.keras.applications.resnet.preprocess_input,
+            },
+            "ResNet101": {
+                "application": tf.keras.applications.resnet.ResNet101,
+                "preprocess_input": tf.keras.applications.resnet.preprocess_input,
             },
             "ResNet50V2": {
                 "application": tf.keras.applications.resnet_v2.ResNet50V2,
