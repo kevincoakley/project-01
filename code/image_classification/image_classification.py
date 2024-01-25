@@ -1,7 +1,7 @@
 import argparse, csv, os, sys, yaml
 from datetime import datetime
 
-script_version = "1.0.3"
+script_version = "1.0.4"
 
 
 def get_dataset_details(dataset_name):
@@ -9,11 +9,17 @@ def get_dataset_details(dataset_name):
     ## Datasets definition dictionary
     """
     datasets = {
-        "cifar100": {
-            "name": "cifar100",
-            "split": ["train[:80%]", "train[80%:100%]", "test"],
-            "num_classes": 100,
-            "dataset_shape": (128, 128, 3),
+        "cassava": {
+            "name": "cassava",
+            "split": ["train", "validation", "test"],
+            "num_classes": 5,
+            "dataset_shape": (224, 224, 3),
+        },
+        "cats_vs_dogs": {
+            "name": "cats_vs_dogs",
+            "split": ["train[:70%]", "train[70%:80%]", "train[80%:100%]"],
+            "num_classes": 2,
+            "dataset_shape": (96, 96, 3),
         },
         "cifar10": {
             "name": "cifar10",
@@ -21,29 +27,78 @@ def get_dataset_details(dataset_name):
             "num_classes": 10,
             "dataset_shape": (128, 128, 3),
         },
+        "cifar100": {
+            "name": "cifar100",
+            "split": ["train[:80%]", "train[80%:100%]", "test"],
+            "num_classes": 100,
+            "dataset_shape": (128, 128, 3),
+        },
+        "citrus_leaves": {
+            "name": "citrus_leaves",
+            "split": ["train[:70%]", "train[70%:80%]", "train[80%:100%]"],
+            "num_classes": 4,
+            "dataset_shape": (224, 224, 3),
+        },
+        "colorectal_histology": {
+            "name": "colorectal_histology",
+            "split": ["train[:70%]", "train[70%:80%]", "train[80%:100%]"],
+            "num_classes": 8,
+            "dataset_shape": (224, 224, 3),
+        },
+        "eurosat": {
+            "name": "eurosat",
+            "split": ["train[:70%]", "train[70%:80%]", "train[80%:100%]"],
+            "num_classes": 10,
+            "dataset_shape": (224, 224, 3),
+        },
+        "fashion_mnist": {
+            "name": "fashion_mnist",
+            "split": ["train[:80%]", "train[80%:100%]", "test"],
+            "num_classes": 10,
+            "dataset_shape": (128, 128, 1),
+        },
         "imagenette": {
             "name": "imagenette/320px-v2",
             "split": ["train[:80%]", "train[80%:100%]", "validation"],
             "num_classes": 10,
             "dataset_shape": (224, 224, 3),
         },
-        "oxford_iiit_pet": {
-            "name": "oxford_iiit_pet",
-            "split": ["train[:80%]", "train[80%:100%]", "test"],
-            "num_classes": 37,
-            "dataset_shape": (299, 299, 3),
-        },
         "oxford_flowers102": {
             "name": "oxford_flowers102",
             "split": ["train", "validation", "test"],
             "num_classes": 102,
-            "dataset_shape": (299, 299, 3),
+            "dataset_shape": (224, 224, 3),
+        },
+        "oxford_iiit_pet": {
+            "name": "oxford_iiit_pet",
+            "split": ["train[:80%]", "train[80%:100%]", "test"],
+            "num_classes": 37,
+            "dataset_shape": (224, 224, 3),
+        },
+        "plant_village": {
+            "name": "plant_village",
+            "split": ["train[:70%]", "train[70%:80%]", "train[80%:100%]"],
+            "num_classes": 38,
+            "dataset_shape": (224, 224, 3),
         },
         "stanford_dogs": {
             "name": "stanford_dogs",
             "split": ["train[:80%]", "train[80%:100%]", "test"],
             "num_classes": 120,
-            "dataset_shape": (299, 299, 3),
+            "dataset_shape": (224, 224, 3),
+        },
+        "svhn_cropped": {
+            "name": "svhn_cropped",
+            "split": ["train[:80%]", "train[80%:100%]", "test"],
+            "num_classes": 10,
+            # "dataset_shape": (96, 96, 3),
+            "dataset_shape": (128, 128, 3),
+        },
+        "uc_merced": {
+            "name": "uc_merced",
+            "split": ["train[:70%]", "train[70%:80%]", "train[80%:100%]"],
+            "num_classes": 21,
+            "dataset_shape": (224, 224, 3),
         },
     }
 
@@ -176,13 +231,7 @@ def image_classification(
             prediction_path + base_name + "_seed_" + str(seed_val) + ".csv"
         )
     else:
-        predictions_csv_file = (
-            prediction_path
-            + base_name
-            + "_ts_"
-            + start
-            + ".csv"
-        )
+        predictions_csv_file = prediction_path + base_name + "_ts_" + start + ".csv"
 
     score = framework.evaluate(
         trained_model, test_dataset, save_predictions, predictions_csv_file
@@ -209,12 +258,7 @@ def image_classification(
         if seed_val != 1:
             model_path = model_path + base_name + "_seed_" + str(seed_val)
         else:
-            model_path = (
-                model_path
-                + base_name
-                + "_ts_"
-                + start
-            )
+            model_path = model_path + base_name + "_ts_" + start
 
         # Append the file extension based on the machine learning framework
         if machine_learning_framework == "TensorFlow":
@@ -446,12 +490,14 @@ def parse_arguments(args):
         "--model-name",
         dest="model_name",
         help="Name of model to train",
-        default="Xception",
+        default="DenseNet121",
         choices=[
             "DenseNet121",
             "DenseNet169",
             "EfficientNetB0",
             "EfficientNetB3",
+            "ResNet50",
+            "ResNet101",
             "ResNet50V2",
             "ResNet101V2",
             "Xception",
@@ -462,17 +508,28 @@ def parse_arguments(args):
     parser.add_argument(
         "--dataset-name",
         dest="dataset_name",
-        help="cifar10, cifar100, imagenette, oxford_flowers102, oxford_iiit_pet, stanford_dogs, dtd, caltech101",
+        help="The dataset to train the model on",
         default="cifar10",
         choices=[
+            "cassava",
+            "cats_vs_dogs",
             "cifar10",
             "cifar100",
+            "citrus_leaves",
+            "colorectal_histology",
+            "eurosat",
+            "fashion_mnist",
+            "imagenette",
+            "imagenette",
+            "oxford_iiit_pet",
             "imagenette",
             "oxford_iiit_pet",
             "oxford_flowers102",
+            "oxford_iiit_pet",
+            "plant_village",
             "stanford_dogs",
-            "dtd",
-            "caltech101",
+            "svhn_cropped",
+            "uc_merced",
         ],
         required=True,
     )
