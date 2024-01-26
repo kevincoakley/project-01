@@ -1,7 +1,7 @@
 import argparse, csv, os, sys, yaml
 from datetime import datetime
 
-script_version = "1.0.4"
+script_version = "1.0.5"
 
 
 def get_dataset_details(dataset_name):
@@ -91,7 +91,6 @@ def get_dataset_details(dataset_name):
             "name": "svhn_cropped",
             "split": ["train[:80%]", "train[80%:100%]", "test"],
             "num_classes": 10,
-            # "dataset_shape": (96, 96, 3),
             "dataset_shape": (128, 128, 3),
         },
         "uc_merced": {
@@ -553,7 +552,7 @@ if __name__ == "__main__":
     seed_val = args.seed_val
     epochs = args.epochs
 
-    start = datetime.now().strftime("%Y%m%d%H%M%S")
+    start = datetime.now().strftime("%Y%m%d%H%M%S%f")
 
     print(
         "\nImage Classification (%s - %s - %s): [%s]\n======================\n"
