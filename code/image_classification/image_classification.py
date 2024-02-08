@@ -1,7 +1,7 @@
 import argparse, csv, os, sys, yaml
 from datetime import datetime
 
-script_version = "1.0.5"
+script_version = "1.0.6"
 
 
 def get_dataset_details(dataset_name):
@@ -65,7 +65,7 @@ def get_dataset_details(dataset_name):
         },
         "oxford_flowers102": {
             "name": "oxford_flowers102",
-            "split": ["train", "validation", "test"],
+            "split": ["test", "train", "validation"],
             "num_classes": 102,
             "dataset_shape": (224, 224, 3),
         },
@@ -518,9 +518,6 @@ def parse_arguments(args):
             "colorectal_histology",
             "eurosat",
             "fashion_mnist",
-            "imagenette",
-            "imagenette",
-            "oxford_iiit_pet",
             "imagenette",
             "oxford_iiit_pet",
             "oxford_flowers102",
