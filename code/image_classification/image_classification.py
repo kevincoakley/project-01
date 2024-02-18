@@ -1,7 +1,7 @@
 import argparse, csv, os, sys, yaml
 from datetime import datetime
 
-script_version = "1.0.6"
+script_version = "1.0.7"
 
 
 def get_dataset_details(dataset_name):
@@ -493,12 +493,17 @@ def parse_arguments(args):
         choices=[
             "DenseNet121",
             "DenseNet169",
+            "DenseNet201",
             "EfficientNetB0",
+            "EfficientNetB1",
+            "EfficientNetB2",
             "EfficientNetB3",
             "ResNet50",
             "ResNet101",
+            "ResNet152",
             "ResNet50V2",
             "ResNet101V2",
+            "ResNet152V2",
             "Xception",
         ],
         required=True,

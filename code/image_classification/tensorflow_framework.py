@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 
 class Tensorflow:
     def __init__(self):
-        self.script_version = "1.0.2"
+        self.script_version = "1.0.3"
         self.version = tf.version.VERSION
         self.epochs = 0
         self.end_to_end_epochs = 0
@@ -124,12 +124,20 @@ class Tensorflow:
                 "application": tf.keras.applications.DenseNet169,
                 "preprocess_input": tf.keras.applications.densenet.preprocess_input,
             },
+            "DenseNet201": {
+                "application": tf.keras.applications.DenseNet201,
+                "preprocess_input": tf.keras.applications.densenet.preprocess_input,
+            },
             "ResNet50": {
                 "application": tf.keras.applications.resnet.ResNet50,
                 "preprocess_input": tf.keras.applications.resnet.preprocess_input,
             },
             "ResNet101": {
                 "application": tf.keras.applications.resnet.ResNet101,
+                "preprocess_input": tf.keras.applications.resnet.preprocess_input,
+            },
+            "ResNet152": {
+                "application": tf.keras.applications.resnet.ResNet152,
                 "preprocess_input": tf.keras.applications.resnet.preprocess_input,
             },
             "ResNet50V2": {
@@ -140,8 +148,20 @@ class Tensorflow:
                 "application": tf.keras.applications.resnet_v2.ResNet101V2,
                 "preprocess_input": tf.keras.applications.resnet_v2.preprocess_input,
             },
+            "ResNet152V2": {
+                "application": tf.keras.applications.resnet_v2.ResNet152V2,
+                "preprocess_input": tf.keras.applications.resnet_v2.preprocess_input,
+            },
             "EfficientNetB0": {
                 "application": tf.keras.applications.EfficientNetB0,
+                "preprocess_input": tf.keras.applications.efficientnet.preprocess_input,
+            },
+            "EfficientNetB1": {
+                "application": tf.keras.applications.EfficientNetB1,
+                "preprocess_input": tf.keras.applications.efficientnet.preprocess_input,
+            },
+            "EfficientNetB2": {
+                "application": tf.keras.applications.EfficientNetB2,
                 "preprocess_input": tf.keras.applications.efficientnet.preprocess_input,
             },
             "EfficientNetB3": {
