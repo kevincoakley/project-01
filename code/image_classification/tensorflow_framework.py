@@ -8,14 +8,11 @@ from sklearn.metrics import accuracy_score
 
 class Tensorflow:
     def __init__(self):
-        self.script_version = "1.0.3"
+        self.script_version = "1.0.4"
         self.version = tf.version.VERSION
         self.epochs = 0
-        self.end_to_end_epochs = 0
         self.learning_rate = 0.0
-        self.end_to_end_learning_rate = 0.0
         self.lr_scheduler = False
-        self.transfer_learning = False
 
         self.train_steps_per_epoch = 0
 
@@ -62,8 +59,7 @@ class Tensorflow:
 
         def preprocessing(image, label):
             image = tf.cast(image, tf.float32)
-            if self.transfer_learning == False:
-                image = tf.image.per_image_standardization(image)
+            image = tf.image.per_image_standardization(image)
             image = tf.image.resize(
                 image, dataset_shape[:2], antialias=False, method="nearest"
             )
@@ -118,59 +114,45 @@ class Tensorflow:
         models = {
             "DenseNet121": {
                 "application": tf.keras.applications.DenseNet121,
-                "preprocess_input": tf.keras.applications.densenet.preprocess_input,
             },
             "DenseNet169": {
                 "application": tf.keras.applications.DenseNet169,
-                "preprocess_input": tf.keras.applications.densenet.preprocess_input,
             },
             "DenseNet201": {
                 "application": tf.keras.applications.DenseNet201,
-                "preprocess_input": tf.keras.applications.densenet.preprocess_input,
             },
             "ResNet50": {
                 "application": tf.keras.applications.resnet.ResNet50,
-                "preprocess_input": tf.keras.applications.resnet.preprocess_input,
             },
             "ResNet101": {
                 "application": tf.keras.applications.resnet.ResNet101,
-                "preprocess_input": tf.keras.applications.resnet.preprocess_input,
             },
             "ResNet152": {
                 "application": tf.keras.applications.resnet.ResNet152,
-                "preprocess_input": tf.keras.applications.resnet.preprocess_input,
             },
             "ResNet50V2": {
                 "application": tf.keras.applications.resnet_v2.ResNet50V2,
-                "preprocess_input": tf.keras.applications.resnet_v2.preprocess_input,
             },
             "ResNet101V2": {
                 "application": tf.keras.applications.resnet_v2.ResNet101V2,
-                "preprocess_input": tf.keras.applications.resnet_v2.preprocess_input,
             },
             "ResNet152V2": {
                 "application": tf.keras.applications.resnet_v2.ResNet152V2,
-                "preprocess_input": tf.keras.applications.resnet_v2.preprocess_input,
             },
             "EfficientNetB0": {
                 "application": tf.keras.applications.EfficientNetB0,
-                "preprocess_input": tf.keras.applications.efficientnet.preprocess_input,
             },
             "EfficientNetB1": {
                 "application": tf.keras.applications.EfficientNetB1,
-                "preprocess_input": tf.keras.applications.efficientnet.preprocess_input,
             },
             "EfficientNetB2": {
                 "application": tf.keras.applications.EfficientNetB2,
-                "preprocess_input": tf.keras.applications.efficientnet.preprocess_input,
             },
             "EfficientNetB3": {
                 "application": tf.keras.applications.EfficientNetB3,
-                "preprocess_input": tf.keras.applications.efficientnet.preprocess_input,
             },
             "Xception": {
                 "application": tf.keras.applications.Xception,
-                "preprocess_input": tf.keras.applications.xception.preprocess_input,
             },
         }
 
@@ -181,37 +163,10 @@ class Tensorflow:
             "classes": num_classes,
             "classifier_activation": "softmax",
         }
-        transfer_init_args = {
-            "include_top": False,
-            "weights": "imagenet",
-            "input_shape": dataset_shape,
-            "pooling": None,
-        }
 
-        if self.transfer_learning == False:
-            base_model = models[model_name]["application"](**random_init_args)
-            return base_model
+        model = models[model_name]["application"](**random_init_args)
+        return model
 
-        else:
-            base_model = models[model_name]["application"](**transfer_init_args)
-
-            # Freeze the base_model
-            base_model.trainable = False
-
-            inputs = tf.keras.Input(shape=dataset_shape)
-
-            # Build the top of the model
-            x = models[model_name]["preprocess_input"](inputs)
-            x = base_model(x)
-
-            x = tf.keras.layers.GlobalAveragePooling2D()(x)
-            x = tf.keras.layers.Dropout(0.2)(x)
-
-            outputs = tf.keras.layers.Dense(num_classes, activation="softmax")(x)
-
-            transfer_model = tf.keras.Model(inputs, outputs)
-
-            return transfer_model
 
     def train(
         self,
@@ -279,48 +234,6 @@ class Tensorflow:
             validation_data=val_dataset,
             callbacks=callbacks,
         )
-
-        if self.transfer_learning:
-            # Unfreeze the base_model
-            for layer in model.layers:
-                if not isinstance(layer, tf.keras.layers.BatchNormalization):
-                    layer.trainable = True
-
-            model.summary(show_trainable=True)
-
-            model.compile(
-                optimizer=tf.keras.optimizers.Adam(
-                    learning_rate=self.end_to_end_learning_rate
-                ),  # Low learning rate
-                loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-                metrics=["accuracy"],
-            )
-
-            # Define tensorboard callback
-            log_dir = (
-                "logs/fit/"
-                + run_name
-                + "-end-2-end-"
-                + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-            )
-            tensorboard_callback = tf.keras.callbacks.TensorBoard(
-                log_dir=log_dir, histogram_freq=1
-            )
-
-            # Define callbacks
-            callbacks = []
-
-            if self.save_tensorboard_logs:
-                callbacks.append(tensorboard_callback)
-
-            print("Fitting the end-to-end model")
-            model.fit(
-                train_dataset,
-                epochs=self.end_to_end_epochs,
-                steps_per_epoch=self.train_steps_per_epoch,
-                validation_data=val_dataset,
-                callbacks=callbacks,
-            )
 
         return model
 

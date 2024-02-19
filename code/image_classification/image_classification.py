@@ -1,7 +1,7 @@
 import argparse, csv, os, sys, yaml
 from datetime import datetime
 
-script_version = "1.0.7"
+script_version = "1.0.8"
 
 
 def get_dataset_details(dataset_name):
@@ -111,12 +111,9 @@ def image_classification(
     op_determinism=False,
     batch_size=128,
     learning_rate=0.001,
-    end_to_end_learning_rate=0.0,
     lr_scheduler=False,
     epochs=200,
-    end_to_end_epochs=0,
     seed_val=1,
-    transfer_learning=False,
     run_name="",
     start="",
     save_model=False,
@@ -129,11 +126,8 @@ def image_classification(
 
         framework = Tensorflow()
         framework.epochs = epochs
-        framework.end_to_end_epochs = end_to_end_epochs
         framework.learning_rate = learning_rate
-        framework.end_to_end_learning_rate = end_to_end_learning_rate
         framework.lr_scheduler = lr_scheduler
-        framework.transfer_learning = transfer_learning
 
         framework.save_epoch_logs = save_epoch_logs
         framework.save_tensorboard_logs = save_tensorboard_logs
@@ -288,16 +282,13 @@ def save_score(
     machine_learning_framework,
     batch_size,
     learning_rate,
-    end_to_end_learning_rate,
     lr_scheduler,
     epochs,
-    end_to_end_epochs,
     training_time,
     model_name,
     dataset_name,
     op_determinism,
     seed_val,
-    transfer_learning,
     filename,
     run_name="",
     start="",
@@ -329,15 +320,12 @@ def save_score(
             "framework_version",
             "batch_size",
             "learning_rate",
-            "end_to_end_learning_rate",
             "lr_scheduler",
             "epochs",
-            "end_to_end_epochs",
             "model_name",
             "dataset_name",
             "random_seed",
             "op_determinism",
-            "transfer_learning",
             "test_loss",
             "test_accuracy",
         ]
@@ -358,15 +346,12 @@ def save_score(
                 "framework_version": framework.version,
                 "batch_size": batch_size,
                 "learning_rate": learning_rate,
-                "end_to_end_learning_rate": end_to_end_learning_rate,
                 "lr_scheduler": lr_scheduler,
                 "epochs": epochs,
-                "end_to_end_epochs": end_to_end_epochs,
                 "model_name": model_name,
                 "dataset_name": dataset_name,
                 "random_seed": seed_val,
                 "op_determinism": op_determinism,
-                "transfer_learning": transfer_learning,
                 "test_loss": test_loss,
                 "test_accuracy": test_accuracy,
             }
@@ -404,14 +389,6 @@ def parse_arguments(args):
     )
 
     parser.add_argument(
-        "--end-to-end-learning-rate",
-        dest="end_to_end_learning_rate",
-        help="end to end training learning rate",
-        type=float,
-        default=0.0,
-    )
-
-    parser.add_argument(
         "--lr-scheduler",
         dest="lr_scheduler",
         help="Use the learning rate scheduler",
@@ -422,14 +399,6 @@ def parse_arguments(args):
         "--epochs",
         dest="epochs",
         help="Number of epochs",
-        type=int,
-        default=0,
-    )
-
-    parser.add_argument(
-        "--end-to-end-epochs",
-        dest="end_to_end_epochs",
-        help="Number of epochs for end to end training",
         type=int,
         default=0,
     )
@@ -535,13 +504,6 @@ def parse_arguments(args):
         required=True,
     )
 
-    parser.add_argument(
-        "--transfer-learning",
-        dest="transfer_learning",
-        help="Use transfer learning to train the model using the imagenet weights",
-        action="store_true",
-    )
-
     return parser.parse_args(args)
 
 
@@ -572,12 +534,9 @@ if __name__ == "__main__":
         op_determinism=args.op_determinism,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
-        end_to_end_learning_rate=args.end_to_end_learning_rate,
         lr_scheduler=args.lr_scheduler,
         epochs=epochs,
-        end_to_end_epochs=args.end_to_end_epochs,
         seed_val=seed_val,
-        transfer_learning=args.transfer_learning,
         run_name=args.run_name,
         start=start,
         save_model=args.save_model,
@@ -591,16 +550,13 @@ if __name__ == "__main__":
         machine_learning_framework=args.machine_learning_framework,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
-        end_to_end_learning_rate=args.end_to_end_learning_rate,
         lr_scheduler=args.lr_scheduler,
         epochs=epochs,
-        end_to_end_epochs=args.end_to_end_epochs,
         training_time=training_time,
         model_name=args.model_name,
         dataset_name=args.dataset_name,
         op_determinism=args.op_determinism,
         seed_val=seed_val,
-        transfer_learning=args.transfer_learning,
         filename=save_filename,
         run_name=args.run_name,
         start=start,
